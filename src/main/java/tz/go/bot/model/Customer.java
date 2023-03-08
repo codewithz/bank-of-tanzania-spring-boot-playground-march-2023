@@ -1,14 +1,60 @@
 package tz.go.bot.model;
 
+import javax.persistence.*;
 import java.time.LocalDate;
 
+//Represents the Java class
+@Entity(name ="Customer")
+//Represents the DB table
+@Table(name="customer")
 public class Customer {
-
+    //Represents the Primary Key
+    @Id
+    //For creating a sequence for customer table
+    @SequenceGenerator(
+            name = "customer_sequence",
+            sequenceName = "customer_sequence",
+            allocationSize = 1
+    )
+    //For Getting the Generated Value
+    @GeneratedValue(
+            strategy = GenerationType.SEQUENCE,
+            generator = "customer_sequence"
+    )
+    @Column(
+            name = "id",
+            updatable = false
+    )
     private int id;
+    @Column(
+            name = "name",
+            nullable = false,
+            columnDefinition = "TEXT"
+    )
     private String name;
+    @Column(
+            name = "email",
+            nullable = false,
+            columnDefinition = "TEXT"
+    )
     private String email;
+    @Column(
+            name = "account_type",
+            nullable = false,
+            columnDefinition = "TEXT"
+    )
     private String accountType;
+    @Column(
+            name = "contact",
+            nullable = false,
+            columnDefinition = "BIGINT"
+    )
     private long contact;
+    @Column(
+            name = "account_creation_date",
+            nullable = false,
+            columnDefinition = "DATE"
+    )
     private LocalDate accountCreationDate;
 
 
