@@ -117,4 +117,17 @@ public class Customer {
     public void setAccountCreationDate(LocalDate accountCreationDate) {
         this.accountCreationDate = accountCreationDate;
     }
+
+    @Override
+    public String toString() {
+        return "Customer{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", email='" + email + '\'' +
+                ", accountType='" + accountType + '\'' +
+                ", contact=" + contact +
+                ", accountCreationDate=" + accountCreationDate +
+                '}';
+    }
+
 }
