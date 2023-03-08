@@ -1,7 +1,9 @@
 package tz.go.bot.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 import tz.go.bot.model.Customer;
 import tz.go.bot.repository.CustomerRepository;
 
@@ -21,30 +23,16 @@ public class CustomerService {
         this.customerRepository = customerRepository;
     }
 
-//    List<Customer> customers=new ArrayList<>();
-//
-//    {
-//        Customer customer1=
-//                new Customer(1,
-//                        "Tom","tom@gmail.com","Savings",
-//                        998877L, LocalDate.now());
-//
-//        Customer customer2=new Customer(2,
-//                "Alex","alex@gmail.com","Savings",
-//                998855L, LocalDate.now());
-//
-//        Customer customer3=new Customer(3,
-//                "Mike","mike@gmail.com","Current",
-//                998899L, LocalDate.now());
-//
-//        customers.addAll(Arrays.asList(customer1,customer2,customer3));
-//
-//
-//    }
 
     public List<Customer> getAllCustomers(){
        List<Customer> customers=customerRepository.findAll();
-       return customers;
+       if(!customers.isEmpty()){
+           return customers;
+       }
+       else{
+           throw  new ResponseStatusException(HttpStatus.NOT_FOUND,"No customers found in database");
+       }
+
     }
 
     public Customer getCustomerById(int id){
@@ -52,8 +40,13 @@ public class CustomerService {
         Optional<Customer> optionalCustomer=customerRepository.findById(id);
         if(optionalCustomer.isPresent()){
           customer=optionalCustomer.get();
+            return customer;
         }
-        return customer;
+        else{
+            throw  new ResponseStatusException(HttpStatus.NOT_FOUND,
+                    "Customer with id:"+id+" not found in database");
+        }
+
     }
 
     public String addCustomer(Customer c){
@@ -62,7 +55,7 @@ public class CustomerService {
            return "SUCCESS";
        }
        else{
-           return "FAILURE";
+           throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Customer not created");
        }
     }
 
@@ -74,7 +67,7 @@ public class CustomerService {
             return "SUCCESS";
         }
         else{
-            return "FAILURE";
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Customer not updated");
         }
 
 
@@ -87,11 +80,12 @@ public class CustomerService {
         if (customerToBeDeleted!=null){
             customerRepository.delete(customerToBeDeleted);
             status="Deleted";
+            return status;
         }
         else{
-            status="Not Found";
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Customer not deleted");
         }
-        return status;
+
 
     }
 
