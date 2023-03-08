@@ -1,5 +1,6 @@
 package tz.go.bot;
 
+import com.github.javafaker.Faker;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -8,6 +9,8 @@ import tz.go.bot.model.Customer;
 import tz.go.bot.repository.CustomerRepository;
 
 import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -95,8 +98,27 @@ public class SpringBootPlaygroundApplication {
 					System.out.println(customer);
 				}
 
+				generateRandomCustomers(customerRepository);
 		};
 
+	}
+
+	private void generateRandomCustomers(CustomerRepository customerRepository){
+
+		Faker faker=new Faker();
+
+		for(int index=1;index<=100;index++){
+			String name=faker.name().fullName();
+			String email=String.format("%s@gmail.com",name);
+			String accountType=index%2==0?"Savings":"Current";
+			long contact=faker.number().numberBetween(99887755L,999888555L);
+			Date accountCreationDate=faker.date().between(new Date(),new Date(2015,01,01));
+			LocalDate accountCreationLocalDate=
+					LocalDate.ofInstant(accountCreationDate.toInstant(), ZoneId.systemDefault());
+
+			Customer customer=new Customer(0,name,email,accountType,contact,accountCreationLocalDate);
+			customerRepository.save(customer);
+		}
 	}
 
 
