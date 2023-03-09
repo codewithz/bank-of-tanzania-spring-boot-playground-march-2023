@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import tz.go.bot.model.Book;
 import tz.go.bot.model.Customer;
 import tz.go.bot.model.Student;
 import tz.go.bot.model.StudentIdCard;
@@ -16,6 +17,7 @@ import tz.go.bot.repository.StudentIdCardRepository;
 import tz.go.bot.repository.StudentRepository;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
@@ -40,28 +42,46 @@ public class SpringBootPlaygroundApplication {
 			String email=String.format("%s.%s@gmail.com",firstName,lastName);
 			int age=faker.number().numberBetween(18,25);
 
+			Book book1=new Book("Clean Code", LocalDateTime.now().minusDays(4));
+			Book book2=new Book("Head First Java",LocalDateTime.now());
+			Book book3=new Book("Master Spring Data JPA",LocalDateTime.now().minusMonths(6));
+
 			Student student=new Student(firstName,lastName,email,age);
+
+			student.addBook(book1);
+			student.addBook(book2);
+			student.addBook(book3);
 
 			StudentIdCard studentIdCard=new StudentIdCard("123456789",student);
 
-			System.out.println("Saving ID Card");
-			studentIdCardRepository.save(studentIdCard);
+			student.setStudentIdCard(studentIdCard);
+
+			studentRepository.save(student);
 
 				System.out.println("----------Fetching a student---------");
 
 				Optional<Student> optionalStudent=studentRepository.findById(1L);
 
 				if(optionalStudent.isPresent()){
-					System.out.println(optionalStudent.get());
+					Student student1=optionalStudent.get();
+					System.out.println("-- Lazy Loading of Books ----------");
+					List<Book> books=student1.getBooks();
+
+					for(Book b:books){
+						System.out.println(b);
+					}
 				}
 
-				System.out.println("------ Fetch an ID Card ------------");
-
-				Optional<StudentIdCard> optionalStudentIdCard=studentIdCardRepository.findById(1L);
-				if(optionalStudentIdCard.isPresent()){
-					System.out.println(optionalStudentIdCard.get());
-				}
-
+//				System.out.println("------ Fetch an ID Card ------------");
+//
+//				Optional<StudentIdCard> optionalStudentIdCard=studentIdCardRepository.findById(1L);
+//				if(optionalStudentIdCard.isPresent()){
+//					System.out.println(optionalStudentIdCard.get());
+//				}
+//
+//				System.out.println("----- Deleting a student-----------");
+			//	studentRepository.deleteById(1l);
+			//	studentIdCardRepository.deleteById(1l);
 
 
 		};

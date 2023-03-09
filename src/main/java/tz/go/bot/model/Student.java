@@ -1,6 +1,9 @@
 package tz.go.bot.model;
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
+
 //Represents the Java class
 @Entity(name="Student")
 //Represents the db table
@@ -50,6 +53,23 @@ public class Student {
             nullable = false
     )
     private Integer age;
+
+    @OneToOne(
+            mappedBy = "student",
+            cascade = {CascadeType.PERSIST,CascadeType.REMOVE},
+            orphanRemoval = true,
+            fetch=FetchType.LAZY
+    )
+    private StudentIdCard studentIdCard;
+
+    @OneToMany(
+            mappedBy = "student",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true,
+            fetch = FetchType.LAZY
+
+    )
+    private List<Book> books=new ArrayList<>();
 
     public Student() {
     }
@@ -102,6 +122,32 @@ public class Student {
         this.age = age;
     }
 
+    public StudentIdCard getStudentIdCard() {
+        return studentIdCard;
+    }
+
+    public void setStudentIdCard(StudentIdCard studentIdCard) {
+        this.studentIdCard = studentIdCard;
+    }
+
+    public List<Book> getBooks(){
+        return  this.books;
+    }
+
+    public void addBook(Book book){
+        if(!books.contains(book)){
+            this.books.add(book);
+            book.setStudent(this);
+        }
+    }
+
+    public void removeBook(Book book){
+        if(this.books.contains(book)){
+            this.books.remove(book);
+            book.setStudent(null);
+        }
+    }
+
     @Override
     public String toString() {
         return "Student{" +
@@ -110,6 +156,7 @@ public class Student {
                 ", lastName='" + lastName + '\'' +
                 ", email='" + email + '\'' +
                 ", age=" + age +
+              //  ", studentIdCard=" + studentIdCard +
                 '}';
     }
 }
