@@ -9,7 +9,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import tz.go.bot.model.Customer;
+import tz.go.bot.model.Student;
+import tz.go.bot.model.StudentIdCard;
 import tz.go.bot.repository.CustomerRepository;
+import tz.go.bot.repository.StudentIdCardRepository;
+import tz.go.bot.repository.StudentRepository;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -26,71 +30,36 @@ public class SpringBootPlaygroundApplication {
 	}
 
 		@Bean
-		CommandLineRunner commandLineRunner(CustomerRepository customerRepository){
+		CommandLineRunner commandLineRunner(StudentRepository studentRepository,
+											StudentIdCardRepository studentIdCardRepository){
 			return args -> {
-				Customer tom=new Customer(
-						0,"Tom","tom@gmail.com",
-						"Current",99887744L, LocalDate.now());
+			Faker faker=new Faker();
 
-				customerRepository.save(tom);
+			String firstName=faker.name().firstName();
+			String lastName=faker.name().lastName();
+			String email=String.format("%s.%s@gmail.com",firstName,lastName);
+			int age=faker.number().numberBetween(18,25);
 
-				Customer alex=new Customer(
-						0,"Alex","alex@gmail.com",
-						"Current",99887733L, LocalDate.now());
+			Student student=new Student(firstName,lastName,email,age);
 
-				Customer mike=new Customer(
-						0,"Mike","mike@gmail.com",
-						"Savings",99887733L, LocalDate.parse("2021-01-05"));
+			StudentIdCard studentIdCard=new StudentIdCard("123456789",student);
 
-				customerRepository.saveAll(List.of(alex,mike));
+			System.out.println("Saving ID Card");
+			studentIdCardRepository.save(studentIdCard);
 
+				System.out.println("----------Fetching a student---------");
 
-				generateRandomCustomers(customerRepository);
-				System.out.println("----------- Native Queries --------------------");
-				Optional<Customer> optionalCustomer=customerRepository.
-						selectCustomerByEmail("tom@gmail.com","Tom");
-				if(optionalCustomer.isPresent()){
-					System.out.println(optionalCustomer.get());
+				Optional<Student> optionalStudent=studentRepository.findById(1L);
+
+				if(optionalStudent.isPresent()){
+					System.out.println(optionalStudent.get());
 				}
 
-				List<Customer> customersWithNameAndAccountType=
-						customerRepository
-								.selectCustomerWithNameLikeAndAccountType("A","Current");
+				System.out.println("------ Fetch an ID Card ------------");
 
-				for(Customer c:customersWithNameAndAccountType){
-					System.out.println(c);
-				}
-
-				System.out.println("---------- Sorting --------------------");
-				sortCustomers(customerRepository);
-
-				System.out.println("------- Paging -------------");
-
-				PageRequest pageRequest=PageRequest.of(0,25);
-				Page<Customer> page=customerRepository.findAll(pageRequest);
-				System.out.println(page);
-				List<Customer> customerListByPage=page.toList();
-
-				for(Customer c:customerListByPage){
-					System.out.println(c);
-				}
-
-				System.out.println("------------------------------------------");
-				int sizePerPage=25;
-				for(int pageNumber=0;pageNumber<page.getTotalPages();pageNumber++){
-					PageRequest pageRequest1=PageRequest.of(pageNumber,sizePerPage);
-
-					System.out.println("------- Displaying Page Number: " +
-							""+(pageNumber+1)+"/"+(page.getTotalPages())+" ------");
-
-					Page<Customer> page1=customerRepository.findAll(pageRequest1);
-					List<Customer> customersByPage=page1.toList();
-
-					for(Customer c:customersByPage){
-						System.out.println(c);
-					}
-
-
+				Optional<StudentIdCard> optionalStudentIdCard=studentIdCardRepository.findById(1L);
+				if(optionalStudentIdCard.isPresent()){
+					System.out.println(optionalStudentIdCard.get());
 				}
 
 
