@@ -5,6 +5,9 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import tz.go.bot.model.Customer;
 import tz.go.bot.repository.CustomerRepository;
 
@@ -41,64 +44,57 @@ public class SpringBootPlaygroundApplication {
 
 				customerRepository.saveAll(List.of(alex,mike));
 
-				System.out.println("------------------------------------------");
-				System.out.println("Number of students: "+customerRepository.count());
-				System.out.println("------------------------------------------");
 
-				Optional<Customer> optionalCustomer=customerRepository.findById(2);
+				generateRandomCustomers(customerRepository);
+				System.out.println("----------- Native Queries --------------------");
+				Optional<Customer> optionalCustomer=customerRepository.
+						selectCustomerByEmail("tom@gmail.com","Tom");
 				if(optionalCustomer.isPresent()){
 					System.out.println(optionalCustomer.get());
 				}
 
-				Optional<Customer> optionalCustomer1=customerRepository.findById(5);
-				if(optionalCustomer1.isEmpty()){
-					System.out.println("Customer with id 5 not found");
-				}
+				List<Customer> customersWithNameAndAccountType=
+						customerRepository
+								.selectCustomerWithNameLikeAndAccountType("A","Current");
 
-				List<Customer> customers=customerRepository.findAll();
-				for(Customer c:customers){
+				for(Customer c:customersWithNameAndAccountType){
 					System.out.println(c);
 				}
 
-				System.out.println("--------- Updating Tom--------");
+				System.out.println("---------- Sorting --------------------");
+				sortCustomers(customerRepository);
 
-				Optional<Customer> optionalCustomer2=customerRepository.findById(1);
+				System.out.println("------- Paging -------------");
 
-				if(optionalCustomer2.isPresent()){
-					Customer tomCopy=optionalCustomer2.get();
-					System.out.println(tomCopy);
-					tomCopy.setName("Thomas");
-					tomCopy.setEmail("thomas@gmail.com");
-					customerRepository.save(tomCopy);
+				PageRequest pageRequest=PageRequest.of(0,25);
+				Page<Customer> page=customerRepository.findAll(pageRequest);
+				System.out.println(page);
+				List<Customer> customerListByPage=page.toList();
+
+				for(Customer c:customerListByPage){
+					System.out.println(c);
 				}
 
-				System.out.println("-------- Custom Queries ------------");
+				System.out.println("------------------------------------------");
+				int sizePerPage=25;
+				for(int pageNumber=0;pageNumber<page.getTotalPages();pageNumber++){
+					PageRequest pageRequest1=PageRequest.of(pageNumber,sizePerPage);
 
-				List<Customer> customersByAccountType=
-						customerRepository.findCustomersByAccountType("Current");
+					System.out.println("------- Displaying Page Number: " +
+							""+(pageNumber+1)+"/"+(page.getTotalPages())+" ------");
 
-				for(Customer customer:customersByAccountType){
-					System.out.println(customer);
+					Page<Customer> page1=customerRepository.findAll(pageRequest1);
+					List<Customer> customersByPage=page1.toList();
+
+					for(Customer c:customersByPage){
+						System.out.println(c);
+					}
+
 
 				}
-				System.out.println("------ Customers containing something in name");
-				List<Customer> customersByNameContaining=
-						customerRepository.findCustomersByNameIsContaining("x");
 
-				for(Customer customer:customersByNameContaining){
-					System.out.println(customer);
-				}
 
-				System.out.println("------ Customers whose account were created after a particular date--------");
-				List<Customer> customersAfterDate=
-						customerRepository.
-								findCustomersByAccountCreationDateAfter(LocalDate.parse("2022-01-01"));
 
-				for(Customer customer:customersAfterDate){
-					System.out.println(customer);
-				}
-
-				generateRandomCustomers(customerRepository);
 		};
 
 	}
@@ -119,6 +115,19 @@ public class SpringBootPlaygroundApplication {
 			Customer customer=new Customer(0,name,email,accountType,contact,accountCreationLocalDate);
 			customerRepository.save(customer);
 		}
+	}
+
+	private void sortCustomers(CustomerRepository customerRepository){
+
+		Sort sort=Sort.by("name").ascending();
+		List<Customer> customersListSorted=customerRepository.findAll(sort);
+
+		for(Customer c:customersListSorted){
+			System.out.println(c);
+		}
+
+
+
 	}
 
 
