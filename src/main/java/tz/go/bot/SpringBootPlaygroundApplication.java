@@ -36,12 +36,12 @@ public class SpringBootPlaygroundApplication {
 
 				generateRandomCourses(courseRepository);
 
-				Optional<Course> optionalCourse1=courseRepository.findById(1L);
-				Course course1=optionalCourse1.isPresent()?optionalCourse1.get():null;
-
-
-				Optional<Course> optionalCourse2=courseRepository.findById(9L);
-				Course course2=optionalCourse2.isPresent()?optionalCourse2.get():null;
+//				Optional<Course> optionalCourse1=courseRepository.findById(1L);
+//				Course course1=optionalCourse1.isPresent()?optionalCourse1.get():null;
+//
+//
+//				Optional<Course> optionalCourse2=courseRepository.findById(9L);
+//				Course course2=optionalCourse2.isPresent()?optionalCourse2.get():null;
 
 
 				Faker faker=new Faker();
@@ -61,8 +61,8 @@ public class SpringBootPlaygroundApplication {
 				student.addBook(book2);
 				student.addBook(book3);
 
-				student.enrolToCourse(course1);
-				student.enrolToCourse(course2);
+//				student.enrolToCourse(course1);
+//				student.enrolToCourse(course2);
 
 				StudentIdCard studentIdCard=new StudentIdCard("123456789",student);
 
@@ -83,11 +83,28 @@ public class SpringBootPlaygroundApplication {
 						System.out.println(b);
 					}
 
-					List<Course> courses=student1.getCourses();
-					for(Course c:courses){
-						System.out.println(c);
-					}
+//					List<Course> courses=student1.getCourses();
+//					for(Course c:courses){
+//						System.out.println(c);
+//					}
 				}
+
+				System.out.println("----------- Updating the student with course ---------");
+
+				Student student1=optionalStudent.isPresent()?optionalStudent.get():null;
+
+				Optional<Course> optionalCourse2=courseRepository.findById(9L);
+				Course course2=optionalCourse2.isPresent()?optionalCourse2.get():null;
+
+				Enrolment e=new Enrolment(new EnrolmentID(student1.getId(),course2.getId()),
+						student1,course2,LocalDateTime.now()
+						);
+
+				student1.addEnrolment(e);
+
+				studentRepository.save(student1);
+
+
 
 //				System.out.println("------ Fetch an ID Card ------------");
 //
