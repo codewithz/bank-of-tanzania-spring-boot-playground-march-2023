@@ -71,22 +71,28 @@ public class Student {
     )
     private List<Book> books=new ArrayList<>();
 
-    @ManyToMany(
-            cascade = CascadeType.MERGE
-    )
-    @JoinTable(
-            name = "enrolment",
-            joinColumns = @JoinColumn(
-                    name = "student_id",
-                    foreignKey = @ForeignKey(name = "enrolment_student_id_fk")
-            ),
-            inverseJoinColumns = @JoinColumn(
-                    name = "course_id",
-                    foreignKey = @ForeignKey(name = "enrolment_course_id_fk")
+//    @ManyToMany(
+//            cascade = CascadeType.MERGE
+//    )
+//    @JoinTable(
+//            name = "enrolment",
+//            joinColumns = @JoinColumn(
+//                    name = "student_id",
+//                    foreignKey = @ForeignKey(name = "enrolment_student_id_fk")
+//            ),
+//            inverseJoinColumns = @JoinColumn(
+//                    name = "course_id",
+//                    foreignKey = @ForeignKey(name = "enrolment_course_id_fk")
+//
+//            )
+//    )
+//    private List<Course> courses=new ArrayList<>();
 
-            )
+    @OneToMany(
+            mappedBy = "student",
+            cascade = {CascadeType.MERGE}
     )
-    private List<Course> courses=new ArrayList<>();
+    private List<Enrolment> enrolments=new ArrayList<>();
 
     public Student() {
     }
@@ -167,18 +173,37 @@ public class Student {
 
     //Handling Course Mappings
 
-    public List<Course> getCourses(){
-        return this.courses;
+//    public List<Course> getCourses(){
+//        return this.courses;
+//    }
+//
+//    public void enrolToCourse(Course course){
+//        courses.add(course);
+//        course.getStudents().add(this);
+//    }
+//
+//    public void unEnrolFromCourse(Course course){
+//        courses.remove(course);
+//        course.getStudents().remove(this);
+//    }
+
+    //Handle Enrolment Mappings
+
+    public List<Enrolment> getEnrolments(){
+
+        return  this.enrolments;
     }
 
-    public void enrolToCourse(Course course){
-        courses.add(course);
-        course.getStudents().add(this);
+    public void addEnrolment(Enrolment enrolment){
+        if(!enrolments.contains(enrolment)){
+            enrolments.add(enrolment);
+        }
     }
 
-    public void unEnrolFromCourse(Course course){
-        courses.remove(course);
-        course.getStudents().remove(this);
+    public void removeEnrolment(Enrolment enrolment){
+        if(enrolments.contains(enrolment)){
+            enrolments.remove(enrolment);
+        }
     }
 
     @Override
