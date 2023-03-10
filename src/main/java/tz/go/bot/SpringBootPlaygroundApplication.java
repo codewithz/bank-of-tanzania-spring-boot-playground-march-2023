@@ -8,10 +8,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
-import tz.go.bot.model.Book;
-import tz.go.bot.model.Customer;
-import tz.go.bot.model.Student;
-import tz.go.bot.model.StudentIdCard;
+import tz.go.bot.model.*;
+import tz.go.bot.repository.CourseRepository;
 import tz.go.bot.repository.CustomerRepository;
 import tz.go.bot.repository.StudentIdCardRepository;
 import tz.go.bot.repository.StudentRepository;
@@ -33,30 +31,44 @@ public class SpringBootPlaygroundApplication {
 
 		@Bean
 		CommandLineRunner commandLineRunner(StudentRepository studentRepository,
-											StudentIdCardRepository studentIdCardRepository){
+											CourseRepository courseRepository){
 			return args -> {
-			Faker faker=new Faker();
 
-			String firstName=faker.name().firstName();
-			String lastName=faker.name().lastName();
-			String email=String.format("%s.%s@gmail.com",firstName,lastName);
-			int age=faker.number().numberBetween(18,25);
+				generateRandomCourses(courseRepository);
 
-			Book book1=new Book("Clean Code", LocalDateTime.now().minusDays(4));
-			Book book2=new Book("Head First Java",LocalDateTime.now());
-			Book book3=new Book("Master Spring Data JPA",LocalDateTime.now().minusMonths(6));
+				Optional<Course> optionalCourse1=courseRepository.findById(1L);
+				Course course1=optionalCourse1.isPresent()?optionalCourse1.get():null;
 
-			Student student=new Student(firstName,lastName,email,age);
 
-			student.addBook(book1);
-			student.addBook(book2);
-			student.addBook(book3);
+				Optional<Course> optionalCourse2=courseRepository.findById(9L);
+				Course course2=optionalCourse2.isPresent()?optionalCourse2.get():null;
 
-			StudentIdCard studentIdCard=new StudentIdCard("123456789",student);
 
-			student.setStudentIdCard(studentIdCard);
+				Faker faker=new Faker();
 
-			studentRepository.save(student);
+				String firstName=faker.name().firstName();
+				String lastName=faker.name().lastName();
+				String email=String.format("%s.%s@gmail.com",firstName,lastName);
+				int age=faker.number().numberBetween(18,25);
+
+				Book book1=new Book("Clean Code", LocalDateTime.now().minusDays(4));
+				Book book2=new Book("Head First Java",LocalDateTime.now());
+				Book book3=new Book("Master Spring Data JPA",LocalDateTime.now().minusMonths(6));
+
+				Student student=new Student(firstName,lastName,email,age);
+
+				student.addBook(book1);
+				student.addBook(book2);
+				student.addBook(book3);
+
+				student.enrolToCourse(course1);
+				student.enrolToCourse(course2);
+
+				StudentIdCard studentIdCard=new StudentIdCard("123456789",student);
+
+				student.setStudentIdCard(studentIdCard);
+
+				studentRepository.save(student);
 
 				System.out.println("----------Fetching a student---------");
 
@@ -69,6 +81,11 @@ public class SpringBootPlaygroundApplication {
 
 					for(Book b:books){
 						System.out.println(b);
+					}
+
+					List<Course> courses=student1.getCourses();
+					for(Course c:courses){
+						System.out.println(c);
 					}
 				}
 
@@ -85,6 +102,20 @@ public class SpringBootPlaygroundApplication {
 
 
 		};
+
+	}
+
+	private void generateRandomCourses(CourseRepository courseRepository){
+
+		Faker faker=new Faker();
+
+		for(int i=1;i<=20;i++){
+			String department=i%2==0?"IT":"Finance";
+			String courseName=faker.educator().course();
+
+			Course course=new Course(courseName,department);
+			courseRepository.save(course);
+		}
 
 	}
 
